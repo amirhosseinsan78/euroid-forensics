@@ -81,3 +81,27 @@ def test_rejects_animated_png():
     )
     with pytest.raises(ValueError, match="Animated"):
         loading.decode_image(stream.getvalue(), "animated.png")
+
+
+@pytest.mark.parametrize(
+    "mode,color",
+    [("RGB", (12, 75, 203)), ("RGBA", (12, 75, 203, 128)), ("LA", (75, 128)), ("L", 75)],
+)
+def test_optimized_conversion_matches_white_composite(mode, color):
+    data = encoded(mode=mode, color=color)
+    with Image.open(io.BytesIO(data)) as source:
+        expected = Image.alpha_composite(
+            Image.new("RGBA", source.size, "white"), source.convert("RGBA")
+        ).convert("RGB")
+        expected_rgb = np.asarray(expected)
+    image = loading.decode_image(data, "synthetic.png")
+    np.testing.assert_array_equal(image.bgr[:, :, ::-1], expected_rgb)
+
+
+def test_palette_transparency_is_preserved():
+    source = Image.new("P", (100, 100), 0)
+    source.putpalette([255, 0, 0] + [0] * 765)
+    stream = io.BytesIO()
+    source.save(stream, format="PNG", transparency=0)
+    image = loading.decode_image(stream.getvalue(), "palette.png")
+    assert np.all(image.bgr == 255)

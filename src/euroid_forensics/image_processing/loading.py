@@ -52,11 +52,26 @@ def decode_image(data: bytes, filename: str) -> ImageAsset:
                     )
                 if getattr(source, "n_frames", 1) != 1:
                     raise ValueError("Animated images are not supported.")
-                oriented = ImageOps.exif_transpose(source).convert("RGBA")
-                # Explicit white compositing avoids interpreting invisible RGB as evidence.
-                background = Image.new("RGBA", oriented.size, "white")
-                rgb = np.asarray(Image.alpha_composite(background, oriented).convert("RGB"))
-                bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+                # Mutates only the decoded in-memory image, never source file bytes.
+                # Avoid the default extra full-size EXIF copy for unrotated images.
+                ImageOps.exif_transpose(source, in_place=True)
+                if "A" in source.getbands() or "transparency" in source.info:
+                    # Preserve white compositing without an RGBA background plus
+                    # a second full-size RGBA alpha_composite output.
+                    rgba = source if source.mode == "RGBA" else source.convert("RGBA")
+                    rgb_image = Image.new("RGB", source.size, "white")
+                    alpha = rgba.getchannel("A")
+                    rgb_image.paste(rgba, mask=alpha)
+                    alpha.close()
+                    if rgba is not source:
+                        rgba.close()
+                else:
+                    rgb_image = source if source.mode == "RGB" else source.convert("RGB")
+                try:
+                    bgr = cv2.cvtColor(np.asarray(rgb_image), cv2.COLOR_RGB2BGR)
+                finally:
+                    if rgb_image is not source:
+                        rgb_image.close()
     except (
         UnidentifiedImageError,
         OSError,

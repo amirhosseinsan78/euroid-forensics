@@ -2,8 +2,16 @@
 
 from html import escape
 
+from euroid_forensics.domain.report_validation import validate_report
 
-def report_html(report: dict) -> tuple[str, str, str]:
+
+def _html(value: str | int | float) -> str:
+    """Escape every interpolated value, including already-validated numbers."""
+    return escape(str(value), quote=True)
+
+
+def report_html(report: object) -> tuple[str, str, str]:
+    report = validate_report(report)
     findings, metrics = [], []
     for side in report["sides"]:
         region = side["region"]
@@ -21,7 +29,7 @@ def report_html(report: dict) -> tuple[str, str, str]:
         )
         findings.append(
             f"<p><b>{status}</b><br>{escape(side['filename'])} · "
-            f"{side['width']} × {side['height']} px</p>"
+            f"{_html(side['width'])} × {_html(side['height'])} px</p>"
         )
         for finding in side["findings"]:
             label = "WARNING" if finding["severity"] == "warning" else "OBSERVATION"
@@ -38,7 +46,9 @@ def report_html(report: dict) -> tuple[str, str, str]:
             )
         metrics.append(title + "<table cellpadding='6'>")
         for key, value in side["metrics"].items():
-            metrics.append(f"<tr><td>{escape(key.replace('_', ' '))}</td><td>{value}</td></tr>")
+            metrics.append(
+                f"<tr><td>{_html(key.replace('_', ' '))}</td><td>{_html(value)}</td></tr>"
+            )
         metrics.append("</table>")
         metrics.append(f"<p>Original-byte SHA-256:<br>{escape(side['sha256'])}</p>")
     limits = "<h2>Scope & limitations</h2>" + "".join(

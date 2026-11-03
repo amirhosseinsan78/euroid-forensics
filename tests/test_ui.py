@@ -144,3 +144,45 @@ def test_small_roi_drag_clears_prior_selection(window, qtbot, assets):
     qtbot.mousePress(view.viewport(), Qt.MouseButton.LeftButton, pos=position)
     qtbot.mouseRelease(view.viewport(), Qt.MouseButton.LeftButton, pos=position + QPoint(2, 2))
     assert view.region is None
+
+
+def test_saved_history_handles_malformed_snapshot_without_qt_exception(window):
+    import sqlite3
+
+    from PySide6.QtWidgets import QTextBrowser
+
+    window.repository.list_reports()
+    with sqlite3.connect(window.repository.path) as connection:
+        connection.execute(
+            "INSERT INTO reports VALUES (?, ?, ?)",
+            (
+                "93b37b50-136a-47a4-a045-54660c3798e0",
+                "2026-11-03T00:00:00+00:00",
+                "[]",
+            ),
+        )
+
+    def inspect_error():
+        dialog = QApplication.activeModalWidget()
+        assert "could not be read" in dialog.findChild(QTextBrowser).toPlainText()
+        dialog.accept()
+
+    QTimer.singleShot(50, inspect_error)
+    window.show_history()
+
+
+def test_viewer_bgr_buffer_has_correct_colors_and_owns_pixmap(window, assets):
+    import gc
+    from dataclasses import replace
+
+    import numpy as np
+
+    pixels = np.full((60, 90, 3), (7, 50, 190), np.uint8)
+    pixels.setflags(write=False)
+    window.accept_asset("front", replace(assets["front"], bgr=pixels))
+    window.assets.clear()
+    window.views["front"].asset = None
+    del pixels
+    gc.collect()
+    pixmap_item = window.views["front"].scene().items()[0]
+    assert pixmap_item.pixmap().toImage().pixelColor(30, 30).getRgb() == (190, 50, 7, 255)

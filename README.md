@@ -6,7 +6,7 @@ Local desktop software for forensic analysis and fraud detection of European ide
 
 Target: 64-bit Windows 10 (1809+) / Windows 11, Python 3.12+. Stack: PySide6, OpenCV, Pillow, NumPy and SQLite. The tested environment and remaining platform checks are recorded in [validation](docs/validation.md). PySide6 is capped below 6.13 to retain the Windows 10 target; see [Qt's platform support](https://doc.qt.io/qt-6.12/windows.html).
 
-Repository: [amirhosseinsan78/euroid-forensics](https://github.com/amirhosseinsan78/euroid-forensics) (private). Management: [EuroID Forensics project](https://github.com/users/amirhosseinsan78/projects/1) (private), [MVP v0.1 milestone](https://github.com/amirhosseinsan78/euroid-forensics/milestone/1), [six development issues](https://github.com/amirhosseinsan78/euroid-forensics/issues).
+Repository: [amirhosseinsan78/euroid-forensics](https://github.com/amirhosseinsan78/euroid-forensics) is **Public**; code, issues, PRs and Actions history are publicly readable. Management: [EuroID Forensics project](https://github.com/users/amirhosseinsan78/projects/1), [MVP v0.1 milestone](https://github.com/amirhosseinsan78/euroid-forensics/milestone/1), [six development issues](https://github.com/amirhosseinsan78/euroid-forensics/issues). Project-board access is managed separately from repository visibility.
 
 ## Scope
 
@@ -52,13 +52,15 @@ Results are stored in Qt's per-user `AppLocalDataLocation` under `reports.sqlite
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -m ruff check src tests
+.\.venv\Scripts\python.exe -m ruff check src tests tools
 $env:QT_QPA_PLATFORM = "offscreen"
 .\.venv\Scripts\python.exe -m pytest -q
 Remove-Item Env:QT_QPA_PLATFORM
 ```
 
 The offscreen variable is only for headless tests; remove it before launching a visible GUI. Tests generate geometric, non-identity fixtures at runtime. A Windows CI matrix is configured for Python 3.12 and 3.13. See [validation](docs/validation.md) for executed results and limitations.
+
+Saved SQLite snapshots are untrusted input: schema/type/range/collection limits are checked before rendering; all dynamic text and numbers are HTML-escaped. Invalid snapshots show a controlled error in history instead of being partially rendered. See [memory evaluation](docs/memory-evaluation.md) for reproducible measurements with two retained 24 MP images and the decoding/display optimizations.
 
 ## Layout
 
@@ -83,4 +85,4 @@ Do not commit actual identity-card images, extracted personal data, case databas
 
 ## Licensing
 
-No open-source license is granted for the original project at this stage; the owner will choose its license. Third-party components retain their own licenses. The dependency inventory is preliminary and is not a distribution-ready notice bundle.
+Public visibility permits reading the repository; no open-source license is granted for the original project at this stage. The owner will choose its license. Third-party components retain their own licenses. The dependency inventory is preliminary and is not a distribution-ready notice bundle.

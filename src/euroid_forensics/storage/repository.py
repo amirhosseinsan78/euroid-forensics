@@ -6,6 +6,22 @@ from contextlib import closing
 from pathlib import Path
 
 from euroid_forensics.domain.models import AnalysisReport
+from euroid_forensics.domain.report_validation import (
+    InvalidReport,
+    validate_metadata,
+    validate_report,
+)
+
+MAX_REPORT_BYTES = 1024 * 1024
+
+
+def _json_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise InvalidReport("Invalid saved report: duplicate JSON key.")
+        result[key] = value
+    return result
 
 
 class ReportRepository:
@@ -31,7 +47,9 @@ class ReportRepository:
             raise
 
     def save(self, report: AnalysisReport) -> None:
-        payload = json.dumps(report.to_dict(), ensure_ascii=False, allow_nan=False)
+        payload = json.dumps(validate_report(report.to_dict()), ensure_ascii=False, allow_nan=False)
+        if len(payload.encode("utf-8")) > MAX_REPORT_BYTES:
+            raise InvalidReport("Saved report exceeds the size limit.")
         with closing(self._connect()) as connection, connection:
             connection.execute(
                 "INSERT INTO reports (id, created_at, payload) VALUES (?, ?, ?) "
@@ -41,16 +59,27 @@ class ReportRepository:
 
     def list_reports(self, limit: int = 100) -> list[tuple[str, str]]:
         with closing(self._connect()) as connection:
-            return connection.execute(
+            rows = connection.execute(
                 "SELECT id, created_at FROM reports ORDER BY created_at DESC LIMIT ?",
                 (min(max(limit, 1), 1000),),
             ).fetchall()
+        for report_id, created_at in rows:
+            validate_metadata(report_id, created_at)
+        return rows
 
     def load(self, report_id: str) -> dict:
         with closing(self._connect()) as connection:
             row = connection.execute(
-                "SELECT payload FROM reports WHERE id = ?", (report_id,)
+                "SELECT CASE WHEN typeof(payload) = 'text' AND length(CAST(payload AS BLOB)) <= ? "
+                "THEN payload END FROM reports WHERE id = ?",
+                (MAX_REPORT_BYTES, report_id),
             ).fetchone()
         if not row:
             raise KeyError("Saved report not found.")
-        return json.loads(row[0])
+        if row[0] is None:
+            raise InvalidReport("Invalid saved report: oversized or non-text JSON.")
+        try:
+            report = json.loads(row[0], object_pairs_hook=_json_object)
+        except (ValueError, RecursionError) as exc:
+            raise InvalidReport("Invalid saved report JSON.") from exc
+        return validate_report(report)

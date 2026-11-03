@@ -2,7 +2,6 @@
 
 import math
 
-import cv2
 from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap, QPolygonF
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
@@ -48,10 +47,15 @@ class ImageView(QGraphicsView):
         self._selection = self._boundary = None
         self.region = None
         self.asset = asset
-        rgb = cv2.cvtColor(asset.bgr, cv2.COLOR_BGR2RGB)
+        # QPixmap takes its own pixel storage. Keep the asset alive while the
+        # QImage borrows its contiguous BGR buffer; no RGB conversion/copy needed.
         image = QImage(
-            rgb.data, asset.width, asset.height, rgb.strides[0], QImage.Format.Format_RGB888
-        ).copy()
+            asset.bgr.data,
+            asset.width,
+            asset.height,
+            asset.bgr.strides[0],
+            QImage.Format.Format_BGR888,
+        )
         self.scene().addPixmap(QPixmap.fromImage(image))
         self.scene().setSceneRect(QRectF(0, 0, asset.width, asset.height))
         self.fit_image()

@@ -10,6 +10,10 @@ Worker cancellation is cooperative before/after bounded operations and between s
 
 SQLite schema v1 contains `reports(id, created_at, payload)` with a JSON snapshot. `PRAGMA user_version` rejects unknown newer schemas. Saves use parameterized transactions; the same report ID is idempotent. Runtime data is outside the checkout; filenames and hashes, but no original paths or image bytes, are persisted. Saved history opens read-only snapshots, without reprocessing files.
 
+All snapshots cross a strict schema-v1 validation boundary on save/load and again before HTML rendering. Only bounded built-in JSON types are accepted: no numeric-string or boolean coercion, non-finite metrics, unknown structural fields, unsupported statuses, duplicate sides/stages or invalid dimensions/ROIs. JSON payloads are limited to 1 MiB and duplicate keys/deeply malformed JSON are rejected. History metadata is validated separately. Every rendered dynamic value, including numbers and metric keys, is escaped; failures become controlled ValueError-family errors handled by the history UI. Validation checks structure, not cryptographic integrity of an editable local database.
+
+Image loading retains one immutable BGR array per side. EXIF normalization updates only the decoded Pillow image in place. Opaque images bypass RGBA conversion; alpha inputs composite onto an RGB white surface without a second full RGBA result. The viewer borrows the BGR array into a temporary QImage and creates an independently owned QPixmap, avoiding full-size temporary RGB and copied QImage buffers. Loading is serialized by the existing worker gate while both sides can remain loaded. Full-resolution pixels and coordinate behavior are preserved; see docs/memory-evaluation.md.
+
 The boundaries below describe the intended full MVP. Perspective rectification, OCR, official profiles, forensic anomaly models, encryption, retention controls and standalone packaging remain future work. The existing six issues remain open because this phase does not meet all of their acceptance criteria.
 
 ## Boundary and data flow
