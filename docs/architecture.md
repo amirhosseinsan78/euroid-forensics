@@ -1,4 +1,16 @@
-# Initial architecture (proposed)
+# Architecture — MVP v0.1 desktop phase
+
+## Implemented flow
+
+`__main__` configures Qt and the per-user data path. `ui.main_window` snapshots input assets and per-side ROIs before creating a worker thread. Loading uses Pillow header checks and EXIF normalization, then immutable NumPy/OpenCV pixels. `services.analyze` invokes image quality heuristics and adds explicit inactive-stage results from OCR, MRZ, templates and fraud modules. The GUI presents a serializable report and optionally saves it through `storage.repository`.
+
+Quality scores run on the selected crop (or full image), reduced to a maximum edge of 1600 pixels. Candidate coordinates map back to the oriented source image. The report stores the reduction scale, thresholds and analyzer version. Region changes invalidate results rather than displaying stale findings.
+
+Worker cancellation is cooperative before/after bounded operations and between sides. A close request waits for worker completion; no thread is destroyed while native work is running. Loading failure preserves the previous valid input. Source files are never modified.
+
+SQLite schema v1 contains `reports(id, created_at, payload)` with a JSON snapshot. `PRAGMA user_version` rejects unknown newer schemas. Saves use parameterized transactions; the same report ID is idempotent. Runtime data is outside the checkout; filenames and hashes, but no original paths or image bytes, are persisted. Saved history opens read-only snapshots, without reprocessing files.
+
+The boundaries below describe the intended full MVP. Perspective rectification, OCR, official profiles, forensic anomaly models, encryption, retention controls and standalone packaging remain future work. The existing six issues remain open because this phase does not meet all of their acceptance criteria.
 
 ## Boundary and data flow
 
@@ -6,7 +18,7 @@ Windows-only desktop application, Python 3.12+, local processing and local stora
 
 Image import -> immutable source reference and SHA-256 -> quality assessment -> derived preprocessing -> local OCR -> version-aware consistency checks -> explainable anomaly observations -> human review -> explicitly saved local case.
 
-Every arrow above is a future implementation. No executable pipeline exists in this scaffold.
+Only import, quality assessment, human-readable review and optional result persistence are active. The remaining arrows describe future development.
 
 ## Responsibilities
 
@@ -20,7 +32,7 @@ Every arrow above is a future implementation. No executable pipeline exists in t
 
 ## Planned persisted records
 
-Case metadata, source hashes, optional explicitly retained source references, derived-artifact hashes, processing versions, profile version, OCR output, observations and examiner decisions. Keep machine observations distinct from examiner decisions. No schema or database is created yet.
+Current snapshots store source filename/hash/dimensions, ROI, quality measurements, candidate boundary points, observation explanations/confidence, inactive stage statuses, analyzer/schema versions and timestamp. Future full cases may add OCR output, profile versions, derived artifacts and examiner decisions; machine observations must remain distinct from examiner decisions.
 
 ## Windows packaging
 

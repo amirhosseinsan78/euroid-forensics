@@ -2,6 +2,8 @@
 
 Milestone: [MVP v0.1](https://github.com/amirhosseinsan78/euroid-forensics/milestone/1). No due date is assumed. All six issues were created and added to Todo in the private [EuroID Forensics board](https://github.com/users/amirhosseinsan78/projects/1).
 
+Desktop phase progress (`feat/mvp-desktop-shell`): UI import/view/ROI/theme/review workflow, OpenCV quality heuristics, explicit SQLite snapshots and synthetic automated tests are implemented. OCR/MRZ/template/fraud interfaces are defined but inactive. No issue is automatically closed by this phase: perspective rectification, native OCR deployment, official profile coverage, evaluated anomaly detectors and standalone release validation still require follow-up under the existing issues.
+
 | Workstream | GitHub issue |
 | --- | --- |
 | UI | [#1](https://github.com/amirhosseinsan78/euroid-forensics/issues/1) |

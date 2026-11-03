@@ -15,5 +15,10 @@ This is a planning inventory, not the complete notices required for redistributi
 | pytest | Development testing | [MIT](https://github.com/pytest-dev/pytest/blob/main/LICENSE) |
 | Ruff | Development linting | [MIT](https://github.com/astral-sh/ruff/blob/main/LICENSE) |
 | setuptools | Build backend | [MIT](https://github.com/pypa/setuptools/blob/main/LICENSE) |
+| NumPy | Direct image-array dependency | [BSD-3-Clause and bundled notices](https://github.com/numpy/numpy/blob/main/LICENSE.txt) |
+| Pillow | Bounded header inspection and EXIF orientation | [MIT-CMU and bundled notices](https://github.com/python-pillow/Pillow/blob/main/LICENSE) |
+| pytest-qt | Development GUI tests | [MIT](https://github.com/pytest-dev/pytest-qt/blob/master/LICENSE) |
+
+Desktop phase: Tesseract, its language models and PyInstaller are not bundled or invoked. The pytesseract wrapper is an optional future dependency. Runtime/test versions validated locally are captured in `requirements/windows-py312.constraints.txt`; this is not a redistribution license bundle or SBOM.
 
 Before distribution, select and document the Qt licensing route and permitted modules, preserve notices and applicable source/relinking obligations, and evaluate the chosen PyInstaller bundle. The exception for PyInstaller does not remove obligations of bundled libraries. Produce a versioned dependency lock and SBOM from the actual Windows build, including Pillow, NumPy, Shiboken and other transitive components.
