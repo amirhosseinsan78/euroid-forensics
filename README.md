@@ -6,6 +6,8 @@ Local desktop software for forensic analysis and fraud detection of European ide
 
 Target: Windows 10/11, Python 3.12+. Planned stack: PySide6, OpenCV, local Tesseract OCR through pytesseract, SQLite and PyInstaller.
 
+Repository: [amirhosseinsan78/euroid-forensics](https://github.com/amirhosseinsan78/euroid-forensics) (private). Management: [EuroID Forensics project](https://github.com/users/amirhosseinsan78/projects/1) (private), [MVP v0.1 milestone](https://github.com/amirhosseinsan78/euroid-forensics/milestone/1), [six development issues](https://github.com/amirhosseinsan78/euroid-forensics/issues).
+
 ## Scope
 
 Assist a human examiner in reviewing visible anomalies in lawfully obtained images of European identity cards. Image observations cannot establish document authenticity or identity. Unsupported document versions and poor images must produce an inconclusive result.

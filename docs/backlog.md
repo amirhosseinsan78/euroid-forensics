@@ -1,6 +1,15 @@
 # MVP v0.1 backlog
 
-Planned milestone: **MVP v0.1**. No due date is assumed. All tasks begin in Todo. These definitions are ready to become GitHub issues; check GitHub for actual creation status.
+Milestone: [MVP v0.1](https://github.com/amirhosseinsan78/euroid-forensics/milestone/1). No due date is assumed. All six issues were created and added to Todo in the private [EuroID Forensics board](https://github.com/users/amirhosseinsan78/projects/1).
+
+| Workstream | GitHub issue |
+| --- | --- |
+| UI | [#1](https://github.com/amirhosseinsan78/euroid-forensics/issues/1) |
+| Image Processing | [#2](https://github.com/amirhosseinsan78/euroid-forensics/issues/2) |
+| OCR | [#3](https://github.com/amirhosseinsan78/euroid-forensics/issues/3) |
+| Document Validation | [#4](https://github.com/amirhosseinsan78/euroid-forensics/issues/4) |
+| Fraud Detection | [#5](https://github.com/amirhosseinsan78/euroid-forensics/issues/5) |
+| Testing | [#6](https://github.com/amirhosseinsan78/euroid-forensics/issues/6) |
 
 ## UI
 
