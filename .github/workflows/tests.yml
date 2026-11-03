@@ -15,8 +15,8 @@ jobs:
       QT_QPA_PLATFORM: offscreen
       PYTEST_QT_API: pyside6
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
           cache: pip
