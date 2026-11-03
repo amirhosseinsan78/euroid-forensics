@@ -1,1 +1,1 @@
-"""EuroID Forensics: infrastructure scaffold; functionality is not implemented."""
+"""EuroID Forensics: local preliminary image review, without authenticity certification."""

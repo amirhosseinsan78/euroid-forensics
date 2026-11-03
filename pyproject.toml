@@ -9,18 +9,23 @@ description = "Local desktop software for forensic analysis and fraud detection 
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = [
-  "Development Status :: 1 - Planning",
+  "Development Status :: 3 - Alpha",
   "Operating System :: Microsoft :: Windows",
   "Programming Language :: Python :: 3",
 ]
 dependencies = [
-  "PySide6>=6.7,<7",
+  "PySide6>=6.7,<6.13",
   "opencv-python-headless>=4.10,<5",
-  "pytesseract>=0.3.13,<0.4",
+  "numpy>=2,<3",
+  "Pillow>=10.4,<14",
 ]
 
+[project.gui-scripts]
+euroid-forensics = "euroid_forensics.__main__:main"
+
 [project.optional-dependencies]
-dev = ["pytest>=8,<10", "ruff>=0.6,<1"]
+dev = ["pytest>=8,<10", "pytest-qt>=4.4,<5", "ruff>=0.6,<1"]
+ocr = ["pytesseract>=0.3.13,<0.4"]
 build = ["pyinstaller>=6.10,<7"]
 
 [tool.setuptools.packages.find]
@@ -32,3 +37,6 @@ testpaths = ["tests"]
 [tool.ruff]
 target-version = "py312"
 line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
